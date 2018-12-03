@@ -29,6 +29,8 @@ def makealphabet(key):
     # message key to apply further offsets to the alphabet subsets. Once we have a final offset
     # for each character we return a list of 36 offsets that can be applied to each character.
     keylength = int(len(key))
+
+    # TODO: put these in an array so I can condense the keying IF/ELSE below
     rotor_1_offset = 24  # When [key1] is 24 (X) the odd slots are null.
     rotor_2_offset = 34  # When [key1] - [key2] is -2 (or -3) the even slots are null.
     rotor_3_offset = 14  # Not used yet
