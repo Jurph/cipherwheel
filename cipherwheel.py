@@ -1,13 +1,26 @@
 import string
 
+# Constants
+alphabet = list(map(chr,range(65, 91))) + list(map(chr, range(48, 58)))  # Defines a zero-indexed list [A-Z,0-9]
+
+
+# Functions
 def encrypt(plaintext, key):
-    ciphertext = plaintext
+    newalphabet = makealphabet(key)
+    ciphertext = map(plaintext.upper(), newalphabet)
     return ciphertext
 
 
 def decrypt(ciphertext, key):
-    plaintext = ciphertext
+    plaintext = ciphertext.upper()
     return plaintext
+
+
+def addoffset(plainchar, keyletter):
+    offset = (ord(str(plainchar)) + ord(str(keyletter)))%36
+    shiftedchar = alphabet[offset]
+    return shiftedchar
+
 
 def makealphabet(key):
     # We make an alphabet by splitting the alphabet into lists of characters, dividing the
@@ -20,6 +33,23 @@ def makealphabet(key):
     rotor_2_offset = 34  # When [key1] - [key2] is -2 (or -3) the even slots are null.
     rotor_3_offset = 14  # Not used yet
     rotor_4_offset = 4   # Not used yet
-    alphabet = list(map(chr, range(48, 57))) + list(map(chr,range(65, 90)))
-    return alphabet
+    newalphabet = list()
+    for letter in range(1, 36):
+        if letter%keylength == 0:
+            newalphabet[letter] = addoffset(alphabet[letter], rotor_1_offset)
+        elif letter%keylength == 1:
+            newalphabet[letter] = addoffset(alphabet[letter], rotor_2_offset)
+        elif letter%keylength == 2:
+            newalphabet[letter] = addoffset(alphabet[letter], rotor_3_offset)
+        else:
+            exit()
+    return newalphabet
 
+
+if __name__ == "__main__":
+    plaintext = "tHiS iS a TEst 123 456"
+    key = 'QZ'
+    ciphertext = encrypt(plaintext, key)
+    print("Ciphertext using key {} is:\n {}".format(key, ciphertext))
+    plaintext = decrypt(ciphertext, key)
+    print("Plaintext using key {} is:\n {}".format(key, ciphertext))
