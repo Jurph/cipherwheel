@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from string import ascii_uppercase, digits
 from random import shuffle
+import unittest
 
 # Constants
 alphabet = list(ascii_uppercase + digits)  # Defines a zero-indexed list [A-Z,0-9]
@@ -28,20 +29,17 @@ def makealphabet(key):
     # shift to the "demi-alphabet", moving "B" in the plaintext relative to "A" in the plaintext
     # so instead of +1 it will be at +3, +5, and so on up to +35 (or -1).
 
+    str_alphabet = ascii_uppercase + digits  # Start with our 36-char alphabet
     rotors = [13, 13, 1, 2]   # Configure the hardware rotors (choose your own keys w/ you and your friends)
-
     keylength = int(len(key))  # Configure the "software" rotors - that is, the per-message key you're using
     key_turns = []
     for letter in key:
         key_turns.append(alphabet.index(letter))
-    print("For key {} the key turns are:\n{}".format(key, key_turns))
+    # print("For key {} the key turns are:\n{}".format(key, key_turns))
 
-    str_alphabet = ascii_uppercase + digits
-
-    # Shift the demi-alphabets relative to one another
+    # Create demi-alphabets and shift one relative to the other
     evens = ""
     odds = ""
-
     for letter in str_alphabet:
         if str_alphabet.index(letter)%keylength == 0:
             evens += letter
@@ -49,20 +47,20 @@ def makealphabet(key):
             odds += letter
 
     # Apply secondary rotor and second key digit
-    demi_rotation = int((rotors[1] + key_turns[1]+1)/2)
+    demi_rotation = int((rotors[1] + key_turns[1])/2)+1
     odds = rotate(odds, demi_rotation)
-    print("Rotated demi-alphabet by {}".format(demi_rotation))
+    # print("Rotated demi-alphabet by {}".format(demi_rotation))
 
     # Shuffle the evens and odds back into an alphabet
     demi_shift = ""
     for letter in odds:
         demi_shift += evens[odds.index(letter)]
         demi_shift += odds[odds.index(letter)]
-    print("Reshuffled alphabet now reads {}".format(demi_shift))
+    # print("Reshuffled alphabet now reads {}".format(demi_shift))
 
     # Rotate the whole alphabet using the primary rotor and first key digit
     whole_shift = list(rotate(demi_shift, (rotors[0] + key_turns[0])))
-    print(whole_shift)
+    # print(whole_shift)
     return whole_shift
 
 
@@ -98,22 +96,45 @@ def decrypt_with_monoalpha(encrypted_message, monoalpha_cipher):
                inverse_monoalpha_cipher(monoalpha_cipher)
            )
 
+class TestCustomFunctions(unittest.TestCase):
+
+    def test_offset(self):                              # Tests addoffset(str, int)
+        self.assertEqual(addoffset('B', 0), 'B')        # Does nothing when it should
+        self.assertEqual(addoffset('B', 7), 'I')        # Does what it ought to
+        self.assertEqual(addoffset('9', 7), 'G')        # Wrap around correctly
+        self.assertEqual(addoffset('G', -10), '6')      # Wrap around wrong direction
+        self.assertEqual(addoffset('Z', 10), '9')       # Letter/number crossing
+
+
+    def test_rotate(self):
+        self.assertEqual(rotate('ZAGNUT', 0), 'ZAGNUT')     # Do nothing
+        self.assertEqual(rotate('DONGTAR', 4), 'TARDONG')   # Rotate forward
+        self.assertEqual(rotate('SHATNER', -3), 'NERSHAT')  # Rotate backward
+        # TODO: Learn syntax for assertRaises() so I can prove e.g. rotate('DOG','cat') fails
+
+    def test_create_rotors(self):
+        self.assertListEqual(makealphabet("XW"),
+                         ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+                          'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+        self.assertListEqual(makealphabet("XW"), makealphabet("XV"))
+        self.assertListEqual(makealphabet("AA"),
+                         ['1', 'O', '3', 'Q', '5', 'S', '7', 'U', '9', 'W', 'B', 'Y', 'D', '0', 'F', '2', 'H', '4', 'J',
+                          '6', 'L', '8', 'N', 'A', 'P', 'C', 'R', 'E', 'T', 'G', 'V', 'I', 'X', 'K', 'Z', 'M'])
+        self.assertListEqual(makealphabet("FN"),
+                            ['S', 'L', 'U', 'N', 'W', 'P', 'Y', 'R', '0', 'T', '2', 'V', '4', 'X', '6', 'Z', '8', '1',
+                              'A', '3', 'C', '5', 'E', '7', 'G', '9', 'I', 'B', 'K', 'D', 'M', 'F', 'O', 'H', 'Q', 'J'])
+
 
 if __name__ == "__main__":
-    # Just run unit tests if run standalone
-    print("Unit tests for incrementing A, Z, 0, and 9 by 7.")
-    print(addoffset("A", 7))
-    print(addoffset("Z", 7))
-    print(addoffset("0", 7))
-    print(addoffset("9", 7))
-    print("This should look like the alphabet shifted 12 slots:")
-    print(rotate(alphabet, 12))
     print("Using key 'XW' this should look like an all-caps alphabet:")
     newsetting = makealphabet("XW")
-    # print(newsetting)
+    print(newsetting)
     print("Using key 'XV' this should look like an all-caps alphabet:")
     newsetting = makealphabet("XV")
-    # print(newsetting)
+    print(newsetting)
     print("Using key 'AA' this should look like an all-caps mixed alphabet starting '1 O 3 Q 5 S 7...':")
-    newsetting = makealphabet("AA")
-    # print(newsetting)
+    newsetting = makealphabet("FN")
+    print(newsetting)
+    unittest.main()
+
+
