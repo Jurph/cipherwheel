@@ -28,10 +28,9 @@ def makealphabet(key):
     # shift to the "demi-alphabet", moving "B" in the plaintext relative to "A" in the plaintext
     # so instead of +1 it will be at +3, +5, and so on up to +35 (or -1).
 
-    rotors = [9, 13, 1, 2]   # Configure the hardware rotors (choose your own keys w/ you and your friends)
+    rotors = [13, 13, 1, 2]   # Configure the hardware rotors (choose your own keys w/ you and your friends)
 
     keylength = int(len(key))  # Configure the "software" rotors - that is, the per-message key you're using
-
     key_turns = []
     for letter in key:
         key_turns.append(alphabet.index(letter))
@@ -42,19 +41,24 @@ def makealphabet(key):
     # Shift the demi-alphabets relative to one another
     evens = ""
     odds = ""
+
     for letter in str_alphabet:
         if str_alphabet.index(letter)%keylength == 0:
             evens += letter
         else:
             odds += letter
 
-    # Apply secondary rotor and secondary key digit
-    odds = rotate(odds, rotors[1] + key_turns[1])
+    # Apply secondary rotor and second key digit
+    demi_rotation = int((rotors[1] + key_turns[1]+1)/2)
+    odds = rotate(odds, demi_rotation)
+    print("Rotated demi-alphabet by {}".format(demi_rotation))
+
     # Shuffle the evens and odds back into an alphabet
     demi_shift = ""
     for letter in odds:
         demi_shift += evens[odds.index(letter)]
         demi_shift += odds[odds.index(letter)]
+    print("Reshuffled alphabet now reads {}".format(demi_shift))
 
     # Rotate the whole alphabet using the primary rotor and first key digit
     whole_shift = list(rotate(demi_shift, (rotors[0] + key_turns[0])))
