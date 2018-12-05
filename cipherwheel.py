@@ -18,8 +18,8 @@ def rotate(string, int):
 
 def makealphabet(key):
 
-    # We make an alphabet by splitting the alphabet into lists of characters, dividing the
-    # 36-character set into 1, 2, 3, or 4 rotors. We use the array of rotor offsets to shift
+    # We make a new alphabet by splitting the alphabet into lists of characters, dividing the
+    # 36-character set across N (currently 2) rotors. We use the array of rotor offsets to shift
     # those letters to their "AA" configuration. This simulates the hardware configuration of
     # our two-rotor cipher wheel at "0,0". (There are 36x18 possibilities and rotors[] chooses ours.)
     # Once we have our hardware offsets, we simulate turning the rotors - that is, applying the
@@ -62,6 +62,15 @@ def makealphabet(key):
     whole_shift = list(rotate(demi_shift, (rotors[0] + key_turns[0])))
     # print(whole_shift)
     return whole_shift
+
+
+def keyed_wheel_cipher(key, pool=None):
+    """Generates a monoalphabetic cipher dict from a cipher wheel"""
+    if pool is None:
+        pool = ascii_uppercase + digits
+    original_pool = list(pool)
+    shuffled_pool = makealphabet(key)
+    return dict(zip(original_pool, shuffled_pool))
 
 
 #  (RB) These functions from R. Ballestrini
@@ -124,17 +133,12 @@ class TestCustomFunctions(unittest.TestCase):
                             ['S', 'L', 'U', 'N', 'W', 'P', 'Y', 'R', '0', 'T', '2', 'V', '4', 'X', '6', 'Z', '8', '1',
                               'A', '3', 'C', '5', 'E', '7', 'G', '9', 'I', 'B', 'K', 'D', 'M', 'F', 'O', 'H', 'Q', 'J'])
 
+    def test_encryption(self):
+        eff_enn = keyed_wheel_cipher("FN")
+        self.assertEqual(encrypt_with_monoalpha('HELLO', eff_enn), '7WBB6')
+        # TODO: this test currently fails because Ballestrini construes encryption in a different direction than I do.
 
 if __name__ == "__main__":
-    print("Using key 'XW' this should look like an all-caps alphabet:")
-    newsetting = makealphabet("XW")
-    print(newsetting)
-    print("Using key 'XV' this should look like an all-caps alphabet:")
-    newsetting = makealphabet("XV")
-    print(newsetting)
-    print("Using key 'AA' this should look like an all-caps mixed alphabet starting '1 O 3 Q 5 S 7...':")
-    newsetting = makealphabet("FN")
-    print(newsetting)
     unittest.main()
 
 
