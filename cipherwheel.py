@@ -3,10 +3,10 @@ from string import ascii_uppercase, digits
 from random import shuffle
 import unittest
 
-# Constants
-alphabet = list(ascii_uppercase + digits)  # Defines a zero-indexed list [A-Z,0-9]
 
+# Simple Functions
 def addoffset(plainchar, offset_int):
+    alphabet = list(ascii_uppercase + digits)  # Defines a zero-indexed list [A-Z,0-9]
     shiftedchar = alphabet[(alphabet.index(plainchar) + offset_int)%36]
     return shiftedchar
 
@@ -34,7 +34,7 @@ def makealphabet(key):
     keylength = int(len(key))  # Configure the "software" rotors - that is, the per-message key you're using
     key_turns = []
     for letter in key:
-        key_turns.append(alphabet.index(letter))
+        key_turns.append(str_alphabet.index(letter))
     # print("For key {} the key turns are:\n{}".format(key, key_turns))
 
     # Create demi-alphabets and shift one relative to the other
@@ -70,7 +70,7 @@ def keyed_wheel_cipher(key, pool=None):
         pool = ascii_uppercase + digits
     original_pool = list(pool)
     shuffled_pool = makealphabet(key)
-    return dict(zip(original_pool, shuffled_pool))
+    return dict(zip(shuffled_pool, original_pool))
 
 
 #  (RB) These functions from R. Ballestrini
@@ -87,7 +87,7 @@ def random_monoalpha_cipher(pool=None):
 def inverse_monoalpha_cipher(monoalpha_cipher):
     """Given a Monoalphabetic Cipher (dictionary) return the inverse."""
     inverse_monoalpha = {}
-    for key, value in monoalpha_cipher.iteritems():
+    for key, value in monoalpha_cipher.items():         # changed "iteritems" to "items" for Python 3.x compatibility
         inverse_monoalpha[value] = key
     return inverse_monoalpha
 
@@ -104,6 +104,7 @@ def decrypt_with_monoalpha(encrypted_message, monoalpha_cipher):
                encrypted_message,
                inverse_monoalpha_cipher(monoalpha_cipher)
            )
+
 
 class TestCustomFunctions(unittest.TestCase):
 
@@ -136,7 +137,8 @@ class TestCustomFunctions(unittest.TestCase):
     def test_encryption(self):
         eff_enn = keyed_wheel_cipher("FN")
         self.assertEqual(encrypt_with_monoalpha('HELLO', eff_enn), '7WBB6')
-        # TODO: this test currently fails because Ballestrini construes encryption in a different direction than I do.
+        self.assertEqual(decrypt_with_monoalpha('7WBB6', eff_enn), 'HELLO')
+
 
 if __name__ == "__main__":
     unittest.main()
