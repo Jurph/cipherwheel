@@ -141,6 +141,18 @@ class TestCustomFunctions(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    userkey = input("Enter a two-letter key:").upper()
+    # TODO: sanitize user input
+    usercipher = makealphabet(userkey)
+    usermode = input("[E]ncode or [D]ecode?").upper()
+    usermessage = input("Enter your message:").upper()
+    if usermode == "E":
+        encrypted = encrypt_with_monoalpha(usermessage, usercipher)
+        print("Encrypted your message as:\n{}".format(encrypted))
+    elif usermode == "D":
+        decrypted = decrypt_with_monoalpha(usermessage, usercipher)
+        print("Decrypted your message as:\n{}".format(decrypted))
+    else:
+        print("Expected 'D' or 'E'. Quitting.")
+        quit()
     unittest.main()
-
-
