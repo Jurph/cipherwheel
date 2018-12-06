@@ -80,7 +80,7 @@ def keyed_wheel_cipher(key, pool=None):
     original_pool = {}
     original_pool = list(pool)
     keyed_pool = makealphabet(key)
-    print(keyed_pool)
+    # print(keyed_pool)
     return dict(zip(keyed_pool, original_pool))
 
 
@@ -163,8 +163,6 @@ class TestCustomFunctions(unittest.TestCase):
         self.assertListEqual(makealphabet("FN"),                      # Verify a random key in the middle of the corpus
                             ['S', 'L', 'U', 'N', 'W', 'P', 'Y', 'R', '0', 'T', '2', 'V', '4', 'X', '6', 'Z', '8', '1',
                               'A', '3', 'C', '5', 'E', '7', 'G', '9', 'I', 'B', 'K', 'D', 'M', 'F', 'O', 'H', 'Q', 'J'])
-        # self.assertListEqual(makealphabet("69")),
-
 
 
     def test_encryption(self):
@@ -174,7 +172,8 @@ class TestCustomFunctions(unittest.TestCase):
         eff_enn = keyed_wheel_cipher("FN")
         self.assertEqual(encrypt_with_monoalpha('HELLO', eff_enn), '7WBB6')
         self.assertEqual(decrypt_with_monoalpha('7WBB6', eff_enn), 'HELLO')
-
+        nice = keyed_wheel_cipher("69")
+        self.assertEqual(decrypt_with_monoalpha(encrypt_with_monoalpha('NICE', nice), nice), 'NICE')
 
 
 if __name__ == "__main__":
