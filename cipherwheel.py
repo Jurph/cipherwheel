@@ -11,8 +11,9 @@ def addoffset(plainchar, offset_int):
     return shiftedchar
 
 
-def rotate(string_to_rotate, distance_to_rotate):
-    newstring = string_to_rotate[distance_to_rotate:] + string_to_rotate[:distance_to_rotate]
+def rotate(string_to_rotate, requested_rotate):
+    real_rotate = requested_rotate % len(string_to_rotate)
+    newstring = string_to_rotate[real_rotate:] + string_to_rotate[:real_rotate]
     return newstring
 
 
@@ -36,7 +37,7 @@ def makealphabet(key):
         # print("Got key letter {}".format(letter))
         # print("Got key offset {}".format(alphabet.index(str(letter))))
         key_turns.append(alphabet.index(str(letter)))
-    print("For key {} the key turns are:\n{}".format(key, key_turns))
+    # print("For key {} the key turns are:\n{}".format(key, key_turns))
 
     # Create demi-alphabets and shift one relative to the other
     evens = ""
@@ -48,27 +49,27 @@ def makealphabet(key):
             odds += str(letter)
 
     # Apply secondary rotor and second key digit
-    print("ODDS array was {}".format(odds))
-    demi_rotation = (int((rotors[1] + key_turns[1])/2)+1) % 18
+    # print("ODDS array was {}".format(odds))
+    demi_rotation = (int((rotors[1] + key_turns[1])/2)+1)
     odds = rotate(odds, demi_rotation)
-    print("Rotated ODDS demi-alphabet by {} from rotors and {} from keys, adjusted to {} total".format(rotors[1], key_turns[1], demi_rotation))
-    print("ODDS array is  {}".format(odds))
-    print("EVENS array is {}".format(evens))
+    # print("Rotated ODDS demi-alphabet by {} from rotors and {} from keys, adjusted to {} total".format(rotors[1], key_turns[1], demi_rotation))
+    # print("ODDS array is  {}".format(odds))
+    # print("EVENS array is {}".format(evens))
 
     # Shuffle the evens and odds back into an alphabet
     demi_shift = ""
     for letter in odds:
         demi_shift += evens[odds.index(str(letter))]
-        print("Shuffling in {} from the EVENS array".format(evens[odds.index(str(letter))]))
+        # print("Shuffling in {} from the EVENS array".format(evens[odds.index(str(letter))]))
         demi_shift += odds[odds.index(str(letter))]
-        print("Shuffling in {} from the ODDS array".format(odds[odds.index(str(letter))]))
-    print("             Reshuffled alphabet now reads {}".format(demi_shift))
+        # print("Shuffling in {} from the ODDS array".format(odds[odds.index(str(letter))]))
+        # print("             Reshuffled alphabet now reads {}".format(demi_shift))
 
     # Rotate the whole alphabet using the primary rotor and first key digit
-    primary_rotation = int(rotors[0] + key_turns[0])
+    primary_rotation = (int(rotors[0] + key_turns[0]))
     whole_shift = rotate(demi_shift, primary_rotation)
-    print("After rotating by {} spaces,  alphabet is: {}".format(primary_rotation, whole_shift))
-    print("Done with KEY={}".format(key))
+    # print("After rotating by {} spaces,  alphabet is: {}".format(primary_rotation, whole_shift))
+    # print("Done with KEY={}".format(key))
     return list(whole_shift)
 
 
@@ -144,23 +145,27 @@ class TestCustomFunctions(unittest.TestCase):
 
 
     def test_rotate(self):
-        self.assertEqual(rotate('ZAGNUT', 0), 'ZAGNUT')     # Do nothing
-        self.assertEqual(rotate('DONGTAR', 4), 'TARDONG')   # Rotate forward
-        self.assertEqual(rotate('SHATNER', -3), 'NERSHAT')  # Rotate backward
-        self.assertEqual(rotate('ABC', 369), 'ABC')           # Rotate too far
+        self.assertEqual(rotate('ZAGNUT', 0), 'ZAGNUT')             # Do nothing
+        self.assertEqual(rotate('DONGTAR', 4), 'TARDONG')           # Rotate forward
+        self.assertEqual(rotate('SHATNER', -3), 'NERSHAT')          # Rotate backward
+        self.assertEqual(rotate('ABC', 369), 'ABC')                 # Integer number of rotations
+        self.assertEqual(rotate('1234567890', 25), '6789012345')    # Non-integer wraparound
         # TODO: Learn syntax for assertRaises() so I can prove e.g. rotate('DOG','cat') fails
 
     def test_create_rotors(self):
         self.assertListEqual(makealphabet("XW"),
                          ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
                           'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
-        self.assertListEqual(makealphabet("XW"), makealphabet("XV"))
-        self.assertListEqual(makealphabet("AA"),
+        self.assertListEqual(makealphabet("XW"), makealphabet("XV"))  # Verify that null rotors are created
+        self.assertListEqual(makealphabet("AA"),                      # Verify that rotors with the 0th key work
                          ['1', 'O', '3', 'Q', '5', 'S', '7', 'U', '9', 'W', 'B', 'Y', 'D', '0', 'F', '2', 'H', '4', 'J',
                           '6', 'L', '8', 'N', 'A', 'P', 'C', 'R', 'E', 'T', 'G', 'V', 'I', 'X', 'K', 'Z', 'M'])
-        self.assertListEqual(makealphabet("FN"),
+        self.assertListEqual(makealphabet("FN"),                      # Verify a random key in the middle of the corpus
                             ['S', 'L', 'U', 'N', 'W', 'P', 'Y', 'R', '0', 'T', '2', 'V', '4', 'X', '6', 'Z', '8', '1',
                               'A', '3', 'C', '5', 'E', '7', 'G', '9', 'I', 'B', 'K', 'D', 'M', 'F', 'O', 'H', 'Q', 'J'])
+        # self.assertListEqual(makealphabet("69")),
+
+
 
     def test_encryption(self):
         digitskey = keyed_wheel_cipher("A9")
