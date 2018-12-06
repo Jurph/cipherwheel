@@ -48,20 +48,27 @@ def makealphabet(key):
             odds += str(letter)
 
     # Apply secondary rotor and second key digit
-    demi_rotation = int((rotors[1] + key_turns[1])/2)+1
+    print("ODDS array was {}".format(odds))
+    demi_rotation = (int((rotors[1] + key_turns[1])/2)+1) % 18
     odds = rotate(odds, demi_rotation)
-    print("Rotated demi-alphabet by {}".format(demi_rotation))
+    print("Rotated ODDS demi-alphabet by {} from rotors and {} from keys, adjusted to {} total".format(rotors[1], key_turns[1], demi_rotation))
+    print("ODDS array is  {}".format(odds))
+    print("EVENS array is {}".format(evens))
 
     # Shuffle the evens and odds back into an alphabet
     demi_shift = ""
     for letter in odds:
         demi_shift += evens[odds.index(str(letter))]
+        print("Shuffling in {} from the EVENS array".format(evens[odds.index(str(letter))]))
         demi_shift += odds[odds.index(str(letter))]
-    print("Reshuffled alphabet now reads {}".format(demi_shift))
+        print("Shuffling in {} from the ODDS array".format(odds[odds.index(str(letter))]))
+    print("             Reshuffled alphabet now reads {}".format(demi_shift))
 
     # Rotate the whole alphabet using the primary rotor and first key digit
     primary_rotation = int(rotors[0] + key_turns[0])
     whole_shift = rotate(demi_shift, primary_rotation)
+    print("After rotating by {} spaces,  alphabet is: {}".format(primary_rotation, whole_shift))
+    print("Done with KEY={}".format(key))
     return list(whole_shift)
 
 
@@ -73,7 +80,7 @@ def keyed_wheel_cipher(key, pool=None):
     original_pool = list(pool)
     keyed_pool = makealphabet(key)
     print(keyed_pool)
-    return dict(zip(original_pool, keyed_pool))
+    return dict(zip(keyed_pool, original_pool))
 
 
 #  (RB) These functions from R. Ballestrini
@@ -156,9 +163,13 @@ class TestCustomFunctions(unittest.TestCase):
                               'A', '3', 'C', '5', 'E', '7', 'G', '9', 'I', 'B', 'K', 'D', 'M', 'F', 'O', 'H', 'Q', 'J'])
 
     def test_encryption(self):
+        digitskey = keyed_wheel_cipher("A9")
+        self.assertEqual(encrypt_with_monoalpha('HELLO ABC 789', digitskey), 'Q1UUB XKZ GVI')
+        self.assertEqual(decrypt_with_monoalpha('Q1UUB XKZ GVI', digitskey), 'HELLO ABC 789')
         eff_enn = keyed_wheel_cipher("FN")
         self.assertEqual(encrypt_with_monoalpha('HELLO', eff_enn), '7WBB6')
         self.assertEqual(decrypt_with_monoalpha('7WBB6', eff_enn), 'HELLO')
+
 
 
 if __name__ == "__main__":
