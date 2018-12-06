@@ -177,4 +177,5 @@ class TestCustomFunctions(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    interactive()
     unittest.main()
