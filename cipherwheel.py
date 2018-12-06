@@ -11,8 +11,8 @@ def addoffset(plainchar, offset_int):
     return shiftedchar
 
 
-def rotate(string, integer):
-    newstring = string[integer:] + string[:integer]
+def rotate(string_to_rotate, distance_to_rotate):
+    newstring = string_to_rotate[distance_to_rotate:] + string_to_rotate[:distance_to_rotate]
     return newstring
 
 
@@ -60,7 +60,8 @@ def makealphabet(key):
     print("Reshuffled alphabet now reads {}".format(demi_shift))
 
     # Rotate the whole alphabet using the primary rotor and first key digit
-    whole_shift = rotate(demi_shift, (rotors[0] + key_turns[0]))
+    primary_rotation = int(rotors[0] + key_turns[0])
+    whole_shift = rotate(demi_shift, primary_rotation)
     return list(whole_shift)
 
 
@@ -72,7 +73,7 @@ def keyed_wheel_cipher(key, pool=None):
     original_pool = list(pool)
     keyed_pool = makealphabet(key)
     print(keyed_pool)
-    return dict(zip(keyed_pool, original_pool))
+    return dict(zip(original_pool, keyed_pool))
 
 
 #  (RB) These functions from R. Ballestrini
@@ -139,7 +140,7 @@ class TestCustomFunctions(unittest.TestCase):
         self.assertEqual(rotate('ZAGNUT', 0), 'ZAGNUT')     # Do nothing
         self.assertEqual(rotate('DONGTAR', 4), 'TARDONG')   # Rotate forward
         self.assertEqual(rotate('SHATNER', -3), 'NERSHAT')  # Rotate backward
-        self.assertEqual(rotate('ABC', 6), 'ABC')           # Rotate too far
+        self.assertEqual(rotate('ABC', 369), 'ABC')           # Rotate too far
         # TODO: Learn syntax for assertRaises() so I can prove e.g. rotate('DOG','cat') fails
 
     def test_create_rotors(self):
