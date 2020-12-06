@@ -10,3 +10,4 @@ I implement the Field Notes cipher wheel specifically, making use of [R. Ballest
 
 This is a monoalphabetic substitution cipher, which is a toy cipher. It *encodes*, rather than *encrypts*, your secrets.  It is **not adequate** for protecting secrets with real-world consequences. This is adequate for protecting television spoilers, riddles, and any other puzzle that can be solved by a high school student with fewer than ~4 hours of effort. If your threat model includes anyone who has read even a single book on codes and ciphers, they will have been exposed to the phrase "substitution cipher" and, using search engines, they will be able to trivially discover interactive solvers [like this one](https://www.simonsingh.net/The_Black_Chamber/substitutioncrackingtool.html).   
 
+If you're interested in actually encrypting your secrets, consider learning to use [AES-256](https://pycryptodome.readthedocs.io/en/latest/src/cipher/aes.html). 
